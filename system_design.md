@@ -19,3 +19,6 @@ Metronome & Tempo Control API: Offers precise timing and tempo adjustments, ofte
 Tuner API: Uses the device’s microphone to detect pitch and guide tuning, often with visual feedback (e.g., needle or color indicators) for standard and alternate tunings.
 User Progress & Analytics API: Tracks user performance over time—such as accuracy, speed, and completion of lessons—enabling personalized learning paths and progress visualization.
 Diagrams and Design Documents:
+<img width="385" height="518" alt="Screenshot_8" src="https://github.com/user-attachments/assets/b190d8fa-e739-4cc1-b3f6-9cb40d1929f2" />
+
+<img width="439" height="115" alt="download" src="https://github.com/user-attachments/assets/a8717439-55ea-4032-a9ef-eab0beb9489c" />
