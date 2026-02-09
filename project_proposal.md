@@ -6,6 +6,5 @@ Core features will include:
 • Daily/weekly habit and session logging
 • Progress analytics with charts and trend visualizations
 • Optional reminders, streak tracking, and motivational prompts
-The technology stack will include a React frontend, a Python Flask or Node.js backend, a PostgreSQL database, and containerization with Docker. The application will be deployed to the Google Cloud Platform with CI/CD automation via GitHub Actions. AI integration will provide personalized practice suggestions by analyzing user patterns and past session performance.
-
+The technology stack will include a React frontend, a Python Flask or Node.js backend, a PostgreSQL database, and containerization with Docker. The application will be deployed to the Google Cloud Platform with CI/CD automation via GitHub Actions. AI integration will provide personalized practice suggestions by analyzing user patterns and past session performance. Technologies will also include the following APIs: Audio processing API, Machine Learning, Fretboard Visualization API, Music Theory API, Metronome & Tempo Control API, Tuner API, User Progress & Analytics API.
 
