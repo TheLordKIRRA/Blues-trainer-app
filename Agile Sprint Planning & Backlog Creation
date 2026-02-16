@@ -1,77 +1,97 @@
 Product Vision Statement:
-Provide a short vision statement (1–2 paragraphs) that answers:
+The Blues Trainer App is designed for individuals who are actively developing a skill independently, such as musicians, athletes, students, or hobbyists who rely on self-directed practice. These users often lack structured feedback, accountability, and measurable progress tracking, which makes it difficult to maintain motivation and understand whether their effort is producing meaningful improvement. Without a centralized system, practice sessions become fragmented, progress is difficult to quantify, and users may lose consistency over time.
 
-Who is the product for?
-
-What problem does it solve?
-
-What value does it provide?
-
-This should be understandable to a non-technical stakeholder.
+This application solves that problem by providing a structured platform where users can log practice sessions, track performance accuracy, visualize long-term progress, and receive feedback driven by data analysis and machine learning. It provides value by transforming practice from an unstructured activity into a measurable, goal-oriented process. Users gain visibility into their growth through analytics, accuracy scoring, streak tracking, and personalized suggestions. This increases consistency, improves skill development efficiency, and reinforces motivation by making progress observable and actionable.
 
 2. Initial Product Backlog
 Create an initial backlog of at least 8–12 items.
 
-Each backlog item should include:
+[HIGH] User Account Registration
+Description: Implement secure user sign-up functionality with email, username, and password. Store credentials securely using hashing.
 
-A short title
+[HIGH] User Login and Authentication
+Description: Allow users to log in securely and maintain authenticated sessions using token-based authentication.
 
-A brief description
+[HIGH] Database Schema Setup
+Description: Design and implement PostgreSQL database structure for users, practice sessions, and performance metrics.
 
-Priority (High / Medium / Low)
+[HIGH] Practice Session Logging System
+Description: Allow users to create, edit, and delete practice session records including duration, notes, and activity type.
 
-Backlog items may include:
+[HIGH] Basic Dashboard Interface
+Description: Create frontend dashboard showing total practice time, recent sessions, and summary information.
 
-Features
+[HIGH] Backend API Foundation
+Description: Create REST API endpoints for authentication, session logging, and data retrieval.
 
-Technical tasks
+[MEDIUM] Progress Analytics Integration
+Description: Integrate analytics API to calculate accuracy trends, performance metrics, and progression data.
 
-Infrastructure or setup work
+[MEDIUM] Audio Processing Integration
+Description: Integrate audio processing API to analyze pitch, tempo, and accuracy from recorded input.
 
-Testing or documentation tasks
+[MEDIUM] Data Visualization System
+Description: Implement charts and graphs showing performance trends over time.
+
+[MEDIUM] Streak Tracking System
+Description: Track consecutive practice days and display streak statistics.
+
+[MEDIUM] Cloud Deployment Setup
+Description: Configure Docker containerization and deploy application to Google Cloud.
+
+[LOW] Testing Framework Implementation
+Description: Create automated tests for backend APIs and frontend functionality.
 
 3. User Stories (Minimum: 5)
-Write at least five user stories using the standard Agile format:
+As a user, I want to create an account so that my practice data can be securely stored and accessed later.
 
-As a [type of user], I want [some goal] so that [some benefit].
-Each user story should:
+As a user, I want to log my practice sessions so that I can track consistency and total time spent practicing.
 
-Be clear and testable
+As a user, I want to view my progress over time so that I can see measurable improvement and maintain motivation.
 
-Represent meaningful functionality
+As a user, I want the system to analyze my audio input so that I can receive objective feedback on accuracy and performance.
 
-Be small enough to complete within a sprint
+As a user, I want to view a dashboard summary so that I can quickly understand my current performance and practice trends.
 
+As a user, I want personalized suggestions so that I can improve practice efficiency and focus on weak areas.
 4. Sprint Plan (Sprint 1)
-Define your first sprint:
+Sprint Duration:
+2 weeks
 
-Sprint duration (e.g., 1 or 2 weeks)
+Sprint Goal:
+Establish the foundational infrastructure required for user authentication, data storage, and basic practice session logging functionality.
 
-Sprint goal (1–2 sentences)
+Sprint Backlog Items Selected:
 
-3–5 backlog items selected for the sprint
+User Account Registration
 
-Brief justification for why these items were chosen first
+User Login & Session Management
 
-Focus on foundational progress, not perfection.
+Database Schema Setup
+
+Practice Session Logging
+
+Dashboard UI (Basic version)
+
+Justification:
+These items are essential to establish the core system architecture. Without authentication, database infrastructure, and logging capability, the application cannot function. Practice logging is the central feature of the system, and the dashboard provides immediate user value by displaying stored data. Analytics, AI integration, and advanced APIs depend on this foundational infrastructure and therefore must follow after these components are operational.
 
 5. Team Roles and Responsibilities
-Identify who is responsible for:
+Product Owner — Colin Greenwood
+Responsible for defining the application concept, user requirements, feature priorities, and overall product direction. Colin establishes the vision of what the application needs to accomplish and ensures development aligns with the intended purpose and user needs.
 
-Coordinating work (Scrum Master–like role)
+Scrum Master — Aaron Eddy
+Responsible for organizing development workflow, planning sprint structure, managing technical execution timelines, and ensuring development progresses efficiently. Oversees implementation structure and ensures technical feasibility of planned features.
 
-Managing priorities (Product Owner–like role)
+Lead Developer / Implementation — Colin Greenwood
+Responsible for backend architecture, frontend development, database implementation, API integration, system deployment, and technical problem solving. Converts the conceptual design and requirements into a working system.
 
-Implementation tasks
-
-Roles may rotate later, but must be defined now.
-
+System Design and Feature Direction — Aaron Eddy
+Responsible for defining how the user interacts with the system, identifying core feature requirements, and refining application functionality from the user perspective.
 6. Reflection (Individual Paragraphs)
-Each group member must contribute a short individual reflection answering:
+The most challenging part of Agile for this project will be maintaining consistent iteration and clear coordination between conceptual design and technical implementation. Since Colin is responsible for defining the application vision and I am responsible for making it function technically, there must be continuous alignment between requirements and feasibility. Without structured communication, it would be easy to implement systems that technically work but do not fully match the intended user experience.
 
-What part of Agile do you think will be most challenging for this project?
+Agile practices reduce project failure by enforcing incremental development, clear priorities, and continuous validation of functionality. By building core infrastructure first and expanding in controlled stages, the system remains stable and scalable. Sprint planning ensures that development remains focused on essential components rather than attempting to implement advanced features prematurely.
 
-How will Agile practices help reduce project failure?
-
-Solo students should reflect on how they will simulate feedback and iteration.
+Agile also ensures accountability and structured progress. By clearly separating product direction and technical execution roles, development remains organized and efficient. This structure allows the application to evolve in a controlled manner while maintaining alignment between system functionality and intended purpose.
 
