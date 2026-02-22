@@ -1,0 +1,198 @@
+System Overview:
+The Personal Practice Tracker is a web application that helps people build consistent practice habits for skill-based activities by giving them a structured way to log sessions, set goals, and view progress trends over time. The system is built to make effort feel measurable again when progress becomes slow or hard to notice, so users can stay consistent without needing formal coaching or external accountability. 
+The primary users are individuals practicing independently, including students, musicians, athletes, and hobbyists. The main workflows include account creation and login, creating one or more practice skills or routines, logging practice sessions with notes and optional performance metrics, viewing dashboards that summarize streaks and trends, generating date-range reports, and optionally receiving reminders or suggested practice focus areas based on past patterns.
+
+High-Level Architecture Diagram:
++-------------------+           HTTPS/JSON            +------------------------+
+|  Frontend (React) | <-----------------------------> | Backend API (Flask)    |
+|  - UI views       |                                 | - Auth + JWT           |
+|  - Charts         |                                 | - Business logic       |
+|  - Forms          |                                 | - Validation           |
++---------+---------+                                 +-----------+------------+
+          |                                                        |
+          |                                                        | SQLAlchemy
+          |                                                        v
+          |                                              +--------------------+
+          |                                              |  PostgreSQL DB      |
+          |                                              | - users             |
+          |                                              | - skills/goals      |
+          |                                              | - sessions          |
+          |                                              +--------------------+
+          |
+          | Optional integrations (server-side calls)
+          v
++-------------------------+
+| External APIs/Services  |
+| - Reminders (email/SMS) |
+| - AI Suggestions (LLM)  |
+| - Audio analysis (later)|
++-------------------------+
+The React frontend is responsible for the user interface, including forms for logging sessions, dashboards, and data visualization. The Flask backend exposes a REST API that handles authentication, validation, business rules (streaks, summaries, analytics), and all database interactions. PostgreSQL stores persistent data for users, skills/goals, and practice logs. External services are optional and are called from the backend when enabled, so secrets are not exposed in the client. Data flows from the UI to the API via JSON requests, the API validates and processes the request, persists it to the database, and returns summary data for rendering and charting.
+
+Layering / Code Organization Plan:
+/ (repo root)
+  /client
+    /src
+      /components
+      /pages
+      /services        # API client wrappers
+      /hooks
+      /styles
+    package.json
+  /server
+    /app
+      /api             # route handlers / controllers
+      /services        # business logic (analytics, streaks, summaries)
+      /models          # ORM models
+      /schemas         # request/response validation 
+      /db              # session, migrations
+      /utils           # helpers (dates, auth, error formatting)
+    main.py
+    requirements.txt
+  /docs
+    system-architecture.md
+  /infra
+    docker-compose.yml
+    Dockerfile.client
+    Dockerfile.server
+  .github/workflows
+    ci.yml
+This separation reduces coupling by ensuring the UI does not contain business rules and the backend does not contain UI concerns. The controller layer accepts requests and returns responses, the service layer contains reusable business logic (like calculating streaks, goal progress, and summaries), and the data layer isolates database access through models and repository-style functions. This keeps the system easier to test, easier to change, and safer to extend later (especially when AI or audio analysis is added), because each layer has a limited set of responsibilities
+
+Database Schema:
+Entities-
+
+users
+
+id (PK, UUID or serial)
+
+email (unique, required)
+
+password_hash (required)
+
+display_name (optional)
+
+created_at (required)
+
+Skills-
+
+id (PK)
+
+user_id (FK → users.id, required)
+
+name (required)
+
+description (optional)
+
+target_minutes_per_week (optional)
+
+created_at (required)
+
+Sessions-
+
+id (PK)
+
+user_id (FK → users.id, required)
+
+skill_id (FK → skills.id, required)
+
+session_date (required, date)
+
+duration_minutes (required, int > 0)
+
+difficulty (optional, 1–5)
+
+focus_area (optional, short text)
+
+notes (optional, text)
+
+created_at (required)
+
+Relationships-
+
+One user has many skills (users 1 → N skills)
+
+One skill has many sessions (skills 1 → N sessions)
+
+One user has many sessions (users 1 → N sessions) for direct access and authorization checks
+
+Constraints / notes-
+
+users.email must be unique
+
+sessions.duration_minutes must be positive
+
+sessions.user_id must match the owner of the referenced skill_id (enforced in API logic; optionally enforced with DB constraints or triggers later)
+
+Consider an index on (user_id, session_date) for dashboard queries and report generation
+
+API / Interface Plan:
+1) POST /api/auth/register
+Input: { email, password, display_name? }
+Output: { token, user: { id, email, display_name } }
+Error case: 409 if email already exists; 400 if password too weak/invalid payload
+
+2) POST /api/auth/login
+Input: { email, password }
+Output: { token, user: { id, email, display_name } }
+Error case: 401 invalid credentials; 400 missing fields
+
+3) GET /api/skills
+Input: headers Authorization: Bearer <token>
+Output: { skills: [...] }
+Error case: 401 missing/invalid token
+
+4) POST /api/skills
+Input: { name, description?, target_minutes_per_week? }
+Output: { skill: {...} }
+Error case: 400 name missing/empty; 401 unauthorized
+
+5) POST /api/sessions
+Input: { skill_id, session_date, duration_minutes, difficulty?, focus_area?, notes? }
+Output: { session: {...} }
+Error case: 404 skill not found; 403 skill belongs to another user; 400 invalid duration/date
+
+6) GET /api/dashboard/summary?from=YYYY-MM-DD&to=YYYY-MM-DD
+Input: query range optional; token required
+Output: { totals, streaks, minutes_by_skill, sessions_by_week, trend }
+Error case: 400 invalid date range; 401 unauthorized
+
+7) GET /api/reports/progress?skill_id=...&from=...&to=...
+Input: skill_id + date range
+Output: { points: [...], aggregates: {...} }
+Error case: 404 skill not found; 403 wrong owner; 400 bad range
+
+8) POST /api/suggestions/generate (optional phase)
+Input: { from?, to? }
+Output: { suggestions: [ ... ] }
+Error case: 503 external AI service unavailable; 401 unauthorized
+
+Technical Risk List:
+Risk 1: Audio processing / real-time accuracy analysis is complex and device-dependent
+Why risky: microphone permissions, latency, noisy environments, and cross-browser inconsistencies can make “accuracy scoring” unreliable.
+Mitigation: ship MVP without real-time audio scoring; start with manual session logging + optional self-rated difficulty; prototype audio in an isolated spike branch; fallback to upload-and-analyze later.
+
+Risk 2: AI suggestions can produce low-value or inconsistent output
+Why risky: results may be generic, wrong, or not aligned with user goals, and it introduces cost + reliability issues.
+Mitigation: keep AI optional and non-blocking; implement rule-based suggestions first (streak gaps, under-practiced skills); add AI later behind a feature flag; store suggestion prompts/outputs for evaluation.
+
+Risk 3: Analytics queries can get slow as sessions grow
+Why risky: dashboards need aggregations by date ranges and skills, which can become expensive without indexes.
+Mitigation: define indexes early (user_id, session_date, skill_id); keep analytics endpoints scoped to date ranges; precompute simple weekly aggregates if needed.
+
+Risk 4: Deployment/CI/CD complexity with Docker + GCP
+Why risky: environment variables, migrations, secrets, and container networking are common failure points.
+Mitigation: use docker-compose locally to match prod; keep one deployment path (Cloud Run or App Engine, pick one); implement automated migrations carefully; store secrets in GCP Secret Manager; do a “hello world” deploy early.
+
+Design Review Checklist:
+Does each component have a clear responsibility?
+Yes. React handles UI and visualization, Flask handles auth + business logic + validation, PostgreSQL stores persistent data, and external services are optional and called only by the backend.
+
+Where are the biggest dependencies?
+Backend ↔ database is the biggest functional dependency because all core workflows require persistence. Optional dependencies include AI and any reminder provider, which can be disabled without breaking core functionality.
+
+What part of the system is most complex?
+The most complex part is “meaningful progress analytics,” especially if you add audio accuracy scoring or personalized recommendations. These features require careful data modeling, consistent metrics, and realistic interpretation.
+
+What can you simplify right now?
+Ship MVP with session logging, skills, goals, and basic dashboard summaries first. Treat reminders and AI suggestions as phase-two features. Avoid real-time audio scoring until the core loop is stable and you have time for prototyping.
