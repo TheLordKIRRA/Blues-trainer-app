@@ -1,0 +1,93 @@
+Testing Strategy Overview:
+
+Our testing approach is built around preventing regressions early and catching failures at the layer where they are cheapest to fix. We will use unit tests to validate core business logic (streaks, goal progress, analytics calculations, authorization checks), integration tests to validate API + database behavior, and end-to-end tests to validate the full user workflows from the UI through the backend. We are prioritizing tests that protect the most failure-prone areas: authentication, CRUD operations for sessions/goals, and any logic that produces user-facing analytics, because these are the parts that directly impact trust in the app’s correctness.
+
+For tooling, the backend will use pytest with pytest-cov for coverage, and a test PostgreSQL database (or sqlite in-memory only if we must for speed, but Postgres is preferred for realism). API tests will be done with pytest + httpx/requests (or Supertest if the backend is Node). The frontend will use React Testing Library + Jest for component tests and Playwright for end-to-end browser workflows. In CI, GitHub Actions will run tests on every pull request and on merges to main, failing the build if critical tests fail.
+
+Testing will be integrated into the sprint process by treating tests as part of the definition of done: any backlog item that adds or changes behavior must include tests that prove the behavior works and doesn’t break existing features. Colin will act in a Product Owner role by validating acceptance criteria, and I will implement the test suites and ensure they run in CI. Bug fixes will include a test that reproduces the defect so it can’t silently come back later.
+
+Unit Test Plan:
+
+Below are backend units that require unit testing. (Names are written in a Django/Flask-style format; if the final backend is Node, the same logic applies with different module names.)
+
+Unit 1: auth.validate_password_strength(password)
+
+Purpose: Enforces password rules (length, complexity, banned patterns).
+Test Case A: Input: "StrongPass!123" → Output: True
+Test Case B: Input: "short" → Output: False
+Edge Case: Input: " " (spaces) → Output: False
+
+Unit 2: sessions.calculate_duration_minutes(start_time, end_time)
+
+Purpose: Calculates session duration accurately and rejects invalid ranges.
+Test Case A: Input: 10:00, 10:30 → Output: 30
+Test Case B: Input: 13:15, 14:00 → Output: 45
+Edge Case: Input: 10:30, 10:00 → Output: raises ValueError (or returns 0 with an error flag, depending on design)
+
+Unit 3: streaks.compute_streak(dates: List[date])
+
+Purpose: Computes current streak and longest streak from logged session dates.
+Test Case A: Input: [Mon, Tue, Wed] (consecutive) → Output: current=3, longest=3
+Test Case B: Input: [Mon, Wed, Thu] → Output: current=2, longest=2
+Edge Case: Input: [] → Output: current=0, longest=0
+
+Unit 4: analytics.weekly_summary(sessions)
+
+Purpose: Returns totals for a week (minutes, sessions count, category breakdown).
+Test Case A: Input: 3 sessions totaling 90 minutes → Output: total_minutes=90, session_count=3
+Test Case B: Input: sessions split across categories → Output: correct per-category totals
+Edge Case: Input: sessions with duration=0 → Output: either excluded or included consistently (must match the rules we define)
+
+Unit 5: permissions.user_can_access(resource_owner_id, user_id)
+
+Purpose: Prevents cross-user data access.
+Test Case A: Input: owner=5, user=5 → Output: True
+Test Case B: Input: owner=5, user=7 → Output: False
+Edge Case: Input: owner is None (bad record) → Output: False and log error
+
+Integration Test Plan: 
+
+Integration Test 1: Frontend ↔ API (Session Creation)
+
+Components: React UI form → POST /api/sessions → backend validation → DB insert
+Validates: Correct request payload format, server response, and UI updates after creation
+Expected Result: Session appears in the dashboard list immediately and totals update
+Failure Scenario: API returns 400 for missing required field; UI displays validation error without crashing
+
+Integration Test 2: API ↔ Database (Goal CRUD)
+
+Components: API endpoints for goals + Postgres persistence
+Validates: Create/read/update/delete operations, foreign key to user, and required fields
+Expected Result: Goal is stored, retrievable, editable, and removable only by owner
+Failure Scenario: Attempt to fetch another user’s goal returns 403 (or 404 if we hide existence)
+
+Integration Test 3: Authentication Flow (Register → Login → Protected Route)
+
+Components: Auth endpoints + token/session storage + protected API route
+Validates: User can register, login, and access protected endpoints; invalid token blocked
+Expected Result: Valid login yields token/session, protected requests succeed
+Failure Scenario: Expired/invalid token yields 401 and frontend routes user back to login
+
+System / End-to-End Test Scenarios:
+
+E2E Scenario 1: First-Time User Setup + First Session Log
+
+Steps: User visits site → registers account → logs in → creates a goal → logs a practice session → returns to dashboard
+Expected Outcome: User sees the goal, sees session history, and dashboard totals reflect the new session
+Failure Points: Password validation failures, token not stored, session POST fails, dashboard not refreshing
+
+E2E Scenario 2: Returning User Analytics Check
+
+Steps: User logs in → navigates to analytics → selects a date range → views weekly summary and streaks → logs another session → analytics updates
+Expected Outcome: Charts render correctly, totals match session history, streak recalculates correctly
+Failure Points: Date range parsing errors, chart rendering crashes, streak logic off-by-one, caching stale data
+
+Non-Functional Testing Considerations:
+
+Performance matters most on dashboard load and analytics queries. We will watch for slow endpoints by timing API responses in test runs and using database indexes where necessary (ex: user_id + date fields on sessions). Security matters because sessions and goals are personal records; the minimum baseline is secure authentication, password hashing, protected endpoints, and strict ownership checks so one user cannot access another user’s data. Input validation must exist on both frontend and backend, especially for dates, durations, and required fields, because bad input will break analytics and streak logic.
+
+Error handling will be treated as a testable feature: the API should return consistent error formats and status codes, and the frontend should show a usable message instead of crashing. If we integrate audio processing or ML later, we will treat those endpoints as potentially unreliable and implement timeouts, fallbacks, and mocked tests so development doesn’t stall on third-party failures.
+
+Defect Tracking Method:
+
+We will track defects in GitHub Issues inside the project repository and label them by type (bug, enhancement, tech debt) and priority (P0–P2). Each defect will include a short reproduction path, expected vs. actual results, and any logs or screenshots needed to confirm the behavior. Colin will help confirm severity from a product perspective, and I will own resolution tracking by linking the fix PR to the issue and closing the issue only after a test exists that proves the defect is fixed. This keeps fixes accountable and prevents repeat regressions.
