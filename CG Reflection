@@ -1,0 +1,19 @@
+1. Issues found during review
+Security: There was no audience (aud) or issuer (iss) included in the creation of a JWT, which may compromise the validation of a JWT.
+Error handling: There was no error handling in place in terms of invalid input or exceptions when creating a JWT.
+Configuration: There was a direct reference to current_app.config['SECRET'] without checking if a secret was configured, which may cause runtime errors.
+Time zone: There was a reference to utcnow(), but there was no clear policy on time zone consistency within a system.
+2. Architectural inconsistencies
+Coupling to application: There was a coupling to a flask app context via a reference to current_app. Ideally, a secret should be passed as a parameter to a function.
+Modularity: There was no modularity in terms of separating application logic from creating a JWT. This would make the code architecture more appealing.
+Single responsibility: There was a single responsibility violation since a payload was created and a JWT was encoded. This may be separated out for better understanding.
+3. Potential impact if merged without review
+Security risks: Tokens could be created without claims, making it easier for attackers to forge tokens or use them maliciously.
+Runtime errors: Secrets not being provided could lead to the application crashing.
+Code maintainability: The lack of modularity and testability would make it difficult to maintain code in the future.
+Inconsistency: Without proper error management, code changes could result in unhandled exceptions, which could impact other applications.
+4. Integrating code reviews into future sprints
+Forced code reviews: At least one code review must be completed before a feature branch is merged into the main code.
+Code review checklists: Security, error management, testing, and patterns must be considered during code reviews.
+Static code analysis: Flake8, pylint, and security checkers must be used to check code before code reviews.
+Pair programming: For code related to user authentication and payments, pair programming must be used to ensure high-quality code is written from the start.
