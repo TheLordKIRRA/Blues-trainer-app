@@ -8,3 +8,6 @@ class RegisterSchema(Schema):
 class LoginSchema(Schema):
     username = fields.String(required=True)
     password = fields.String(required=True)
+
+###Create RegisterSchema and LoginSchema for user authentication
+###Add username and password fields with basic requirements
