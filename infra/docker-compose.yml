@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+server:
+build: ../server
+ports:
+- "5000:5000"
+depends_on:
+- db
+environment:
+- FLASK_ENV=development
+
+client:
+build: ../client
+ports:
+- "3000:3000"
+
+db:
+image: postgres:16
+environment:
+POSTGRES_PASSWORD: password
+POSTGRES_DB: bluestrainer
+ports:
+- "5432:5432"
