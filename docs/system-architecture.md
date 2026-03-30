@@ -1,19 +1,19 @@
-# Blues Trainer App — System Architecture
+Blues Trainer App — System Architecture
 
-## Overview
+Overview
 The system follows a three-tier architecture:
 
-- **Frontend (React)**  
+- Frontend (React)  
   Handles UI, form input, dashboards, and API calls.
 
-- **Backend (Flask)**  
+- Backend (Flask)  
   Provides REST API endpoints, authentication, validation, 
   business logic (analytics, streaks), and DB operations.
 
-- **Database (PostgreSQL)**  
+- Database (PostgreSQL)  
   Stores users, practice sessions, statistics, and analytics data.
 
-## Data Flow Diagram
+ Data Flow Diagram
 1. User interacts with frontend
 2. Frontend sends JSON requests to Flask API
 3. Flask validates and processes data
