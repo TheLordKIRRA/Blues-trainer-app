@@ -1,6 +1,8 @@
 from marshmallow import Schema, fields, validate
 
 class PracticeSessionSchema(Schema):
-duration_minutes = fields.Integer(required=True)
-notes = fields.String(required=False)
-activity_type = fields.String(required=True)
+    id = fields.Integer(dump_only=True)
+    session_name = fields.String(required=True, validate=validate.Length(max=100))
+    audio_file = fields.String(required=False)
+    user_id = fields.Integer(required=True)
+    timestamp = fields.DateTime(dump_only=True)
