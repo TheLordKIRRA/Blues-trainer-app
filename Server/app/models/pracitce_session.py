@@ -4,11 +4,10 @@ from datetime import datetime
 class PracticeSession(db.Model):
     __tablename__ = "practice_sessions"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    session_name = db.Column(db.VARCHAR(100), nullable=False)
+    audio_file = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    duration_minutes = db.Column(db.Integer, nullable=False)
-    notes = db.Column(db.String(500))
-    activity_type = db.Column(db.String(120), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship("User", backref="practice_sessions")
@@ -16,8 +15,8 @@ class PracticeSession(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "duration_minutes": self.duration_minutes,
-            "notes": self.notes,
-            "activity_type": self.activity_type,
+            "session_name": self.session_name,
+            "audio_file": self.audio_file,
+            "user_id": self.user_id,
             "timestamp": self.timestamp.isoformat()
         }
