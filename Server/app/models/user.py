@@ -1,5 +1,5 @@
 from app.db.database import db
-fromwerkzeug.security import generate_password_hash, check_password_hash #There is a missing space between from and werkzeug.security
+from werkzeug.security import generate_password_hash, check_password_hash #There is a missing space between from and werkzeug.security
 class User(db.Model):                                                    #We should make a overall table to make it easier to call these from other files
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)

@@ -5,7 +5,7 @@ from app.api.auth_routes import auth_bp
 from app.api.practice_routes import practice_bp
 
 def create_app():
-  app = flask(__name_)
+  app = flask(__name__)
   CORS(app)
 
   app.config["SQALCHEMY_DATABASE_URI"] = "root:1234@db:3306/blues_trainer_app"
