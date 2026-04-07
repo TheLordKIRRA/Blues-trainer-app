@@ -1,5 +1,5 @@
 from flask import flask
-from falsk_cors import CORS
+from flask_cors import CORS
 from app.db.database import init_db, db
 from app.api.auth_routes import auth_bp
 from app.api.practice_routes import practice_bp
