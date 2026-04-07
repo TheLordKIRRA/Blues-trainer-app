@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from app.models.pracitce_session import PracticeSession  # Note: Filename has a typo ("pracitce" instead of "practice")
+from Server.app.models.practice_session import PracticeSession  # Note: Filename has a typo ("pracitce" instead of "practice")
 from app.services.analytics_services import calculate_total_minutes, calculate_average_duration
 from app.utils.auth_middleware import require_auth
 
