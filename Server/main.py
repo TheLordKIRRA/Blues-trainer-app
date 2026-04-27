@@ -8,7 +8,7 @@ def create_app():
   app = Flask(__name__)
   CORS(app)
 
-  app.config["SQALCHEMY_DATABASE_URI"] = "root:1234@db:3306/blues_trainer_app"
+  app.config["SQALCHEMY_DATABASE_URI"] = "root:1234@db:127.0.0.1/blues_trainer_app"
   app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
   app.config["SECRET_KEY"] = "supersecretkey"
 
